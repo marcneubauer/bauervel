@@ -6,10 +6,10 @@ services:
       context: .
       dockerfile: Dockerfile
     container_name: bauervel
-    volumes:
-      - ./app:/app:delegated
+#    volumes:
+#      - ./src:/app:delegated
     ports:
-      - "80:80"
+      - "81:80"
       - "443:443"
     depends_on:
       - db
@@ -29,5 +29,11 @@ services:
     volumes:
       - bv-data:/var/lib/mysql
   
+  redis:
+    image: redis:3.2.0
+    container_name: bv-redis
+    ports:
+      - "6380:6379"
+        
 volumes:
   bv-data:
