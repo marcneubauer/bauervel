@@ -1,0 +1,33 @@
+version: '3'
+services:
+  bauervel:
+    image: marcneubauer/bauervel
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    container_name: bauervel
+    volumes:
+      - ./app:/app:delegated
+    ports:
+      - "80:80"
+      - "443:443"
+    depends_on:
+      - db
+    expose:
+      - "9000"
+
+  db:
+    image: mysql:5.7
+    container_name: bv-sql
+    ports:
+      - "3306:3306"
+    environment:
+      - MYSQL_DATABASE=bauervel
+      - MYSQL_USER=bauervel
+      - MYSQL_PASSWORD=bauervel
+      - MYSQL_ROOT_PASSWORD=root
+    volumes:
+      - bv-data:/var/lib/mysql
+  
+volumes:
+  bv-data:
