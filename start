@@ -6,7 +6,7 @@ run/dockerwebdo ""
 
 
 run/postinstall
-https://github.com/rappasoft/laravel-5-boilerplate.git
+
 echo ""
 echo "Laravel installation and setup complete. 💩"
 }
