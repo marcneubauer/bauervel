@@ -1,0 +1,6 @@
+#!/bin/bash
+# copy to host app/etc files
+
+echo ""
+echo "Copying app/etc to host."
+docker cp mage-web:/var/www/html/app/etc ./src/app/

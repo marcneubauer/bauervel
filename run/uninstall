@@ -1,0 +1,16 @@
+#!/bin/bash
+
+echo "Removing local copies of media, database, config, vendor files and database volume..."
+
+rm -fr ./media/*.tar \
+	./src/installed.flag \
+	./db/*.sql.gz \
+	./src/app/etc \
+	./src/vendor \
+	./src/generated \
+	./src/index.php \
+	./src/pub
+
+project=${PWD##*/}
+
+docker volume rm $(docker volume ls -q | grep ${project}_db-data)

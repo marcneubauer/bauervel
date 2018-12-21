@@ -1,4 +1,4 @@
-FROM php:7.2
+FROM php:7.2-apache
 
 RUN apt-get update -y \
 && apt-get install -y \
@@ -41,7 +41,11 @@ RUN npm update
 #RUN php artisan db:seed
 
 #CMD php artisan serve --host=0.0.0.0 --port=81
+COPY ./settings/bv.conf /etc/apache2/sites-available/bv.conf
+RUN echo "ServerName bauervel.map" >> /etc/apache2/apache2.conf
 
-EXPOSE 81
+RUN a2dissite 000-default && \
+    a2ensite bv.conf
+
 
 ENTRYPOINT ["tail", "-f", "/dev/null"]

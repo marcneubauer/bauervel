@@ -1,0 +1,24 @@
+#!/bin/bash
+
+echo ""
+echo "Post-install copies and backup..."
+
+run/dumpconfig
+
+# copy to host vendor files
+echo "Copy out vendor dir..."
+docker cp mage-web:/var/www/html/vendor ./src/
+
+docker cp mage-web:/var/www/html/pub ./src/
+
+docker cp mage-web:/var/www/html/generated ./src/
+
+docker cp mage-web:/var/www/html/index.php ./src/
+
+echo "Copies of app/etc/ and vendor/ available in ./src/ for debugging, set up your path mappings."
+
+run/dumpdb
+
+run/dumpmedia
+
+touch ./src/installed.flag

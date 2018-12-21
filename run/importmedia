@@ -1,0 +1,20 @@
+#!/bin/bash
+# Check for a media dump tarball on host, and if found, copy into containers media dir.
+
+importMedia(){
+	docker cp $1 mage-web:/media.tar
+	run/dockerdo mage-web 'tar -xf /media.tar -C /var/www/html/pub/ && rm /media.tar'
+	run/dockerdo mage-web 'chown -R www-data:www-data /var/www/html/pub/media'
+	echo "Media imported to container."
+	echo ""
+}
+
+echo ""
+echo "Looking for media dump..."
+media=$(find ./media -regex "^.*media.*tar$" | sort -r | head -n1)
+if [ -n "${media// }" ]; then
+	echo "Media archive found, using $media"
+	importMedia ${media}
+else
+	echo "No media archive found."
+fi

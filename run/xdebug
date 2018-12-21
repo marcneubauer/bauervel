@@ -1,0 +1,32 @@
+#!/bin/bash
+
+if [ -z "$1" ]; then
+  echo "Usage:"
+  echo ""
+  echo "./xdebug on"
+  echo "./xdebug off"
+  exit
+fi
+
+file="/usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini"
+
+if [ $1 = "on" ]; then
+  echo "Enabling xdebug."
+  echo "sudo ifconfig en0 alias 10.254.254.254 255.255.255.0     -if you havent yet today."
+  echo ""
+  docker exec -i mage-web /bin/bash -c "sed -i '/xdebug/s/^#//g' $file"
+  echo "Disabling Magento FullPage, Collections, and Block Cache" 
+  run/dockerwebdo "magento cache:disable full_page block_html collections && magento cache:flush"
+  echo ""
+  run/dockerwebdo "magento cache:status"
+
+else
+  echo "Disabling xdebug."
+  docker exec -i mage-web /bin/bash -c "sed -i '/xdebug/s/^/#/g' $file"
+  echo "Enabling Magento FullPage, Collections, and Block Cache" 
+  run/dockerwebdo "magento cache:enable full_page block_html collections && magento cache:flush"
+  echo ""
+  run/dockerwebdo "magento cache:status"
+fi
+
+docker exec -i mage-web /bin/bash -c "service apache2 restart"

@@ -1,0 +1,6 @@
+#!/bin/bash
+# called in start script
+# fixes db entry for head css link for module-theme-sampledata to something that will work.
+# 
+
+run/dockerdo mage-mysql "MYSQL_PWD=magento mysql -umagento magento -e 'update core_config_data set value = replace(value,  \"{{MEDIA_URL}}\", \"media/\");'"

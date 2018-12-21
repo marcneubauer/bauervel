@@ -1,0 +1,3 @@
+#!/bin/bash
+
+docker cp ./src/app/etc mage-web:/var/www/html/app

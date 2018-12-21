@@ -1,0 +1,25 @@
+#!/bin/bash
+#change the url
+
+newUrlInput=$1
+
+# trim new url from arg, just in case
+newUrl=$(echo ${newUrlInput} | sed s_http://www.__ | sed s_.com:81/__)
+
+# get current url from db from db and then domain by stripping stuff
+oldBaseUrl=$(run/dockerdo mage-mysql "MYSQL_PWD=magento mysql -umagento magento -e 'select value from core_config_data where path = \"web/unsecure/base_url\";'" | tail -n1 | sed s_http://www.__ | sed  s_.com:81/__)
+
+echo "Changing url from ${oldBaseUrl} to ${newUrl}"
+
+read -p "Do it? (ctrl-c to abort)"
+
+run/dockerdo mage-mysql "MYSQL_PWD=magento mysql -umagento magento -e 'update core_config_data set value = replace(value , \"${oldBaseUrl}\", \"${newUrl}\") where path = \"web/unsecure/base_url\";'"
+
+newUri=$(run/dockerdo mage-mysql "MYSQL_PWD=magento mysql -umagento magento -e 'select value from core_config_data where path = \"web/unsecure/base_url\";'" | tail -n1)
+
+run/dockerdo mage-web "sed -i -e \"s/${oldBaseUrl}/${newUrl}/g\" /etc/apache2/apache2.conf && sed -i -e \"s/${oldBaseUrl}/${newUrl}/g\" /etc/apache2/sites-available/magento2.conf"
+
+run/dockerdo mage-web "service apache2 restart; magento cache:clean"
+
+echo ""
+echo "Done.      ${newUri}"

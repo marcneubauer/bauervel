@@ -1,0 +1,41 @@
+#!/bin/bash
+        
+
+install() {
+run/dockerwebdo ""
+
+
+run/postinstall
+
+echo ""
+echo "Laravel installation and setup complete. 💩"
+}
+
+
+## ./start up containers
+docker-compose up -d
+
+#restart apache to init extensions and configs
+run/dockerdo bauervel "service apache2 restart"
+
+# keep checking until the mysql container comes up and finishes initialization of it's db
+# on first docker-compose up this is an empty db, subsequent should have the bv install
+# loaded from the db-data volume, if the volume is gone/empty but the install flag exists
+# check for a local backup sql.gz and import it, along with other config files and media
+until run/dockerdo bv-sql "MYSQL_PWD=bauervel mysql -ubauervel bauervel -e 'show tables;'" > /dev/null 2>&1
+do
+echo "Waiting for sql connection..."
+sleep 1
+done
+
+if [ ! -f installed.flag ]
+then
+install
+else
+# We are restarting an already configured instance, copy data into containers.
+run/initdb
+run/importmedia
+run/importconfig
+fi
+
+

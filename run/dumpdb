@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+# Dumps a current snapshot of the container's database to the host.
+
+timestamp=$(date +"%Y%m%d.%H%M")
+echo ""
+echo "Making backup of current db  >  ./db/mage_230.local.${timestamp}.sql.gz"
+run/dockerdo mage-mysql "MYSQL_PWD=magento mysqldump -umagento magento" | gzip > ./db/mage_230.local.${timestamp}.sql.gz

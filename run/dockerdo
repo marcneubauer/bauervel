@@ -1,0 +1,5 @@
+#!/bin/bash
+# This makes it easy to issue a command to a container
+# For example: `dockerdo mage-mysql "mysql -uroot -proot magento -e 'select count(*) from core_config_data where path = \"web/unsecure/base_url\"'"`
+
+docker exec -i $1 /bin/bash -c "$2"

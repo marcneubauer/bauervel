@@ -1,0 +1,5 @@
+#!/bin/bash
+# This makes it easy to issue a command to a container as the web user, to avoid permission issues
+# similar to dockerdo, but only 1 argument as its only run on the web container as www-data
+
+docker-compose exec --user www-data magento /bin/bash -c "$1"

@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+# Dumps a tarball of the container's pub/media dir to the host.
+
+timestamp=$(date +"%Y%m%d.%H%M")
+echo ""
+echo "Backing up pub/media to host."
+run/dockerdo mage-web "tar -cf /media.${timestamp}.tar -C /var/www/html/pub media"
+docker cp mage-web:/media.${timestamp}.tar ./media/
+run/dockerdo mage-web "rm /media.${timestamp}.tar"

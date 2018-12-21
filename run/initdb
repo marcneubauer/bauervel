@@ -1,0 +1,41 @@
+#!/bin/bash
+# called in start script each time environment is started.
+# Verifies a configured db is isntalled or installs it, maybe you deleted the volume with your docker-fu.
+# Checks the mysql container's database for configured data (core_config_data.web/unsecure/base_url).
+# If that is empty or not found, locate dump on host and import to container.
+# 
+
+findAndImportBackupDB() {
+	echo "Looking for local DB backup..."
+	db=$(find ./db -regex "^.*mage_230.local.*sql.gz$" | sort -r | head -n1)
+	if [ -n "${db// }" ]; then
+		echo "DB found, using $db"
+		gunzip < "$db" | run/dockerdo mage-mysql "MYSQL_PWD=magento mysql -umagento magento"
+		if [ ! -f ./src/installed.flag ]; then
+			touch ./src/installed.flag
+		fi
+		echo "Local database $db imported to container."
+	else
+		echo "No local DB found. If this isn't the first install, you might need to reinstall."
+		if [ -f ./src/installed.flag ]; then
+			rm -f ./src/installed.flag
+		fi
+	fi
+}
+
+echo ""
+echo "Checking container database data."
+baseUrl=$(run/dockerdo mage-mysql "MYSQL_PWD=magento mysql -umagento magento -e 'select value from core_config_data where path = \"web/unsecure/base_url\";'" 2>/dev/null | tail -n1)
+if [ -n "$baseUrl" ] && [ "$baseUrl" != "ERROR 1146 (42S02) at line 1: Table 'magento.core_config_data' doesn't exist" ]
+then
+	echo ""
+	echo "Container db has data, Magento is configured:"
+	echo "Frontend - $baseUrl"
+	echo "Admin - $baseUrl""admin"
+	echo "Admin user - admin"
+	echo "Admin pass - admin1234"
+else
+	echo ""
+	echo "Container does not have data in db, importing backup."
+	findAndImportBackupDB
+fi
